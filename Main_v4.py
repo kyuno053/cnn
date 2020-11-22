@@ -15,7 +15,6 @@ if "\\" in __file__:
 	__dir__ = __file__[:-__file__[::-1].index("\\")]
 else:
 	__dir__ = __file__[:-__file__[::-1].index("/")]
-__dir__ = "D:/alesi/Doc/Cours/ESIEA/5e_annee/Deep Learning - GENTRIC/DeepLearning_Source_TF2/"
 
 logFileName = __dir__ + './logs/%s' % date
 
@@ -31,7 +30,7 @@ def loadModel(p_modelFolder: str, p_modelNum: int, p_optimizer: tf.optimizers, p
 
 
 # Format des images
-img_height, img_width, img_channels = 48, 48, 1
+img_height, img_width, img_channels = 80, 80, 3
 
 
 
@@ -53,27 +52,27 @@ if action_load == "O":
 # Entraînement du modèle (oui par défaut)
 action_train = input("Entraîner le modèle ? (O/n) : ")
 if action_train != "n":
-	# dataset = DataSet("B_train_label", dimsImages=[img_height, img_width, img_channels], batchSize=128)
-	# dataset.prep_load_fromBIN_lab01(filename_data_lab0 = "",
-	# 								filename_data_lab1 = "",
-	# 								nbLab0 = 30517,
-	# 								nbLab1 = 88777,
-	# 								nbImDiffClasse0_train = 20000,
-	# 								nbUtilisations0_train = 2,
-	# 								nbImDiffClasse0_val = 5000,
-	# 								rapport10_val = 88777./30517.)
-	dataset = DataSet("data_10k", dimsImages=[img_height, img_width, img_channels], batchSize=128)
-	dataset.prep_load_fromBIN_lab01(filename_data_lab0 = __dir__ + "DataBases/data_10k_label0.bin",
-									filename_data_lab1 = __dir__ + "DataBases/data_10k_label1.bin",
-									nbLab0 = 4768,
-									nbLab1 = 5232,
-									nbImDiffClasse0_train = 4000,
-									nbUtilisations0_train = 1,
-									nbImDiffClasse0_val = 750,
-									rapport10_val = 5232./4768.)
+	dataset = DataSet("B_train_label", dimsImages=[img_height, img_width, img_channels], batchSize=128)
+	dataset.prep_load_fromBIN_lab01(filename_data_lab0 = "",
+									filename_data_lab1 = "",
+									nbLab0 = 30517,
+									nbLab1 = 88777,
+									nbImDiffClasse0_train = 20000,
+									nbUtilisations0_train = 2,
+									nbImDiffClasse0_val = 5000,
+									rapport10_val = 88777./30517.)
+	# dataset = DataSet("data_10k", dimsImages=[img_height, img_width, img_channels], batchSize=128)
+	# dataset.prep_load_fromBIN_lab01(filename_data_lab0 = __dir__ + "DataBases/data_10k_label0.bin",
+	# 								filename_data_lab1 = __dir__ + "DataBases/data_10k_label1.bin",
+	# 								nbLab0 = 4768,
+	# 								nbLab1 = 5232,
+	# 								nbImDiffClasse0_train = 4000,
+	# 								nbUtilisations0_train = 1,
+	# 								nbImDiffClasse0_val = 750,
+	# 								rapport10_val = 5232./4768.)
 	dataset.load_fromBIN_lab01()
 	train_model(dataset, simple_cnn, optimizer, logFileName, betaL2=0.01, interv_reload=1000,
-				nbIterMax=5000, min_delta=0.02, patience=5000, nbElemMoyGlissante=25, verbose=2, interv_accuracy=200)
+				nbIterMax=10000, min_delta=0.02, patience=5000, nbElemMoyGlissante=25, verbose=2, interv_accuracy=200)
 	dataset.vider()
 
 
@@ -94,7 +93,7 @@ if action_verif == "O":
 	# datasetVerif.load_fromBIN_dataLab(filename_data = "",
 	# 								  filename_label = "",
 	# 								  nbImages = 59647)
-	datasetVerif = DataSetVerif("data_test10k", dimsImages=[img_height, img_width, img_channels], batchSize=128)
+	datasetVerif = DataSetVerif("data_test100k", dimsImages=[img_height, img_width, img_channels], batchSize=128)
 	datasetVerif.load_fromBIN_dataLab(filename_data = __dir__ + "DataBases/data_100k.bin",
 									  filename_label = __dir__ + "DataBases/gender_100k.bin",
 									  nbImages = 100000)

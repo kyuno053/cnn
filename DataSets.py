@@ -66,7 +66,7 @@ class DataSet(object):
 		self.filename_data_lab0 = filename_data_lab0
 		self.filename_data_lab1 = filename_data_lab1
 		
-		# Enregistre
+		# Enregistre les nombres d'images utilisées de chacun des classes en train et test
 		self.nbLab0 = nbLab0
 		self.nbLab1 = nbLab1
 		self.nbUtilisations0_train = nbUtilisations0_train
@@ -176,18 +176,17 @@ class DataSet(object):
 
 	def __transfo_image(self, tenseurImage: np.array):
 		""" Applique aléatoirement une transformation à l'image pour faire du data augmentation """
-		# probaTransfo = random()
+		probaTransfo = random()
 
-		# if probaTransfo > 0.6:			# 50% => ne rien faire
-		# 	tenseurImage = tenseurImage.reshape(self.dims)
-		# 	tenseurImage = tf.image.flip_left_right(tenseurImage)
-		# 	# if probaTransfo < 0.7:		# 20% => symétrie horizontale
-		# 	# 	tenseurImage = tf.image.flip_left_right(tenseurImage)
-		# 	# elif probaTransfo < 0.85:	# 15% => luminosité
-		# 	# 	tenseurImage = tf.image.random_brightness(tenseurImage, 0.25)
-		# 	# else:						# 15% => saturation
-		# 	# 	tenseurImage = tf.image.random_saturation(tenseurImage, 0.8, 1.5)
-		# 	tenseurImage = tenseurImage.numpy().reshape([self.dim])
+		if probaTransfo > 0.5:			# 50% => ne rien faire
+			tenseurImage = tenseurImage.reshape(self.dims)
+			if probaTransfo < 0.7:		# 20% => symétrie horizontale
+				tenseurImage = tf.image.flip_left_right(tenseurImage)
+			elif probaTransfo < 0.85:	# 15% => luminosité
+				tenseurImage = tf.image.random_brightness(tenseurImage, 0.25)
+			else:						# 15% => saturation
+				tenseurImage = tf.image.random_saturation(tenseurImage, 0.8, 1.5)
+			tenseurImage = tenseurImage.numpy().reshape([self.dim])
 		return (tenseurImage - 128.) / 256.  # Applique une transformation pour ramener la valeur des pixels dans [-0.5 ; 0496]
 
 
@@ -217,7 +216,7 @@ class DataSet(object):
 			f = open(filename_label, 'rb')
 			label = np.empty(shape=[nbImages, 2], dtype=np.float32)
 			for i in range(nbImages):
-				label[indice_melanges[i], :] = np.fromfile(f, dtype=np.float32, count=2)
+				label[indice_melanges[i], :] = np.fromfile(f, dtype=np.float32, count=2)  # /!\ Attention au format de lecture
 			f.close()
 
 		# Divise en base d'entraînement et de validation
@@ -260,10 +259,12 @@ class DataSet(object):
 			curLabels = p_label[i:i+curBatchSize,:]
 			y = model(curImages, log_summary=False, training=False)  # Utilise le modèle et calcule la matrice de sortie, en ne loggant pas cette itération et en désactivant le dropout
 			curLabels_argmax, y_argmax = tf.argmax(curLabels, 1), tf.argmax(y, 1)  # Pour chaque ligne de la matrice, argmax retourne l'index de la valeur la plus grande ([1,0] => 0)
-			confusion_matrix += tf.math.confusion_matrix(curLabels_argmax, y_argmax)  # Calcule la matrice de confusion, qui permettra de calculer l'accuracy, la précision et le recall
+			confusion_matrix += tf.math.confusion_matrix(curLabels_argmax, y_argmax, num_classes=2)  # Calcule la matrice de confusion, qui permettra de calculer l'accuracy, la précision et le recall
 
 		# Calcule les métriques d'exactitude
 		confusion_matrix = confusion_matrix.numpy()
+		if len(p_label) != np.sum(confusion_matrix):
+			print("y a un pb")
 		accuracy = (confusion_matrix[0][0] + confusion_matrix[1][1]) / len(p_label)
 		precision = confusion_matrix[1][1] / (confusion_matrix[1][1] + confusion_matrix[0][1])
 		recall = confusion_matrix[1][1] / (confusion_matrix[1][1] + confusion_matrix[1][0])
