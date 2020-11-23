@@ -56,7 +56,7 @@ def train_model(p_dataset: DataSet, p_model: tf.Module, p_optimizer: tf.optimize
 		# Vide puis recharge le dataset
 		if numIter > 0 and numIter % interv_reload == 0:
 			p_dataset.reload_fromBIN_lab01()
-			p_dataset.get_mean_accuracy(p_model, -1)
+			# p_dataset.get_mean_accuracy(p_model, -1)
 
 
 	# On finit en beauté par un calcul de l'accuracy

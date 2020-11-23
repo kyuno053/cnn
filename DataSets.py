@@ -178,20 +178,21 @@ class DataSet(object):
 		""" Applique aléatoirement une transformation à l'image pour faire du data augmentation """
 		probaTransfo = random()
 
-		if probaTransfo > 0.5:			# 50% => ne rien faire
+		if probaTransfo > 0.6:			# 50% => ne rien faire
 			tenseurImage = tenseurImage.reshape(self.dims)
-			if probaTransfo < 0.7:		# 20% => symétrie horizontale
-				tenseurImage = tf.image.flip_left_right(tenseurImage)
-			elif probaTransfo < 0.85:	# 15% => luminosité
-				tenseurImage = tf.image.random_brightness(tenseurImage, 0.25)
-			else:						# 15% => saturation
-				tenseurImage = tf.image.random_saturation(tenseurImage, 0.8, 1.5)
+			tenseurImage = tf.image.flip_left_right(tenseurImage)
+		# 	if probaTransfo < 0.7:		# 20% => symétrie horizontale
+		# 		tenseurImage = tf.image.flip_left_right(tenseurImage)
+		# 	elif probaTransfo < 0.85:	# 15% => luminosité
+		# 		tenseurImage = tf.image.random_brightness(tenseurImage, 0.25)
+		# 	else:						# 15% => saturation
+		# 		tenseurImage = tf.image.random_saturation(tenseurImage, 0.8, 1.5)
 			tenseurImage = tenseurImage.numpy().reshape([self.dim])
 		return (tenseurImage - 128.) / 256.  # Applique une transformation pour ramener la valeur des pixels dans [-0.5 ; 0496]
 
 
 
-	def load_fromBIN_dataLab(self, filename_data: str, filename_label: str, nbImages: int, trainSize: float):
+	def load_fromBIN_dataLab(self, filename_data: str, filename_label: str, nbImages: int, trainSize: float, fLabelType: np.dtype = np.uint8):
 		""" Charge un dataset à partir d'un fichier bin contenant les images et un second contenant les labels """
 
 		if filename_data == "":
@@ -216,7 +217,7 @@ class DataSet(object):
 			f = open(filename_label, 'rb')
 			label = np.empty(shape=[nbImages, 2], dtype=np.float32)
 			for i in range(nbImages):
-				label[indice_melanges[i], :] = np.fromfile(f, dtype=np.float32, count=2)  # /!\ Attention au format de lecture
+				label[indice_melanges[i], :] = np.fromfile(f, dtype=fLabelType, count=2)  # /!\ Attention au format de lecture
 			f.close()
 
 		# Divise en base d'entraînement et de validation
@@ -336,9 +337,9 @@ class DataSetVerif(DataSet):
 		DataSet.load_fromBIN_lab01(self)
 
 
-	def load_fromBIN_dataLab(self, filename_data: str, filename_label: str, nbImages: int):
+	def load_fromBIN_dataLab(self, filename_data: str, filename_label: str, nbImages: int, fLabelType: np.dtype = np.uint8):
 		""" Charge les données à partir de deux fichiers .bin, un avec les images et l'autre avec les labels """
-		DataSet.load_fromBIN_dataLab(self, filename_data, filename_label, nbImages, 0)
+		DataSet.load_fromBIN_dataLab(self, filename_data, filename_label, nbImages, 0, fLabelType)
 
 
 	def get_mean_accuracy(self, model: tf.Module):

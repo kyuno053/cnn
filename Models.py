@@ -36,8 +36,6 @@ class ConvNeuralNet(tf.Module):
 
 		nbfilter = 6
 		for i in range(4):
-			# for j in range(2):
-			# 	lCouches.append(Layers.Conv('block_%d_conv_%d'%(i,j), output_dim=nbfilter, filterSize=3, stride=1, dropout_rate = 0.1))
 			lCouches.append( Layers.ResLearningBlock("resBlock_%d"%i, output_dim=nbfilter, filterSize=3, stride=1, dropout_rate = 0.1) )
 			lCouches.append( Layers.Maxpool('pool', 2) )
 			nbfilter *= 2
