@@ -57,10 +57,19 @@ if action_train != "n":
 									filename_data_lab1 = "",
 									nbLab0 = 30517,
 									nbLab1 = 88777,
-									nbImDiffClasse0_train = 24000,
+									nbImDiffClasse0_train = 20000,
 									nbUtilisations0_train = 2,
 									nbImDiffClasse0_val = 5000,
 									rapport10_val = 88777./30517.)
+	# dataset = DataSet("data_10k", dimsImages=[img_height, img_width, img_channels], batchSize=128)
+	# dataset.prep_load_fromBIN_lab01(filename_data_lab0 = __dir__ + "DataBases/data_10k_label0.bin",
+	# 								filename_data_lab1 = __dir__ + "DataBases/data_10k_label1.bin",
+	# 								nbLab0 = 4768,
+	# 								nbLab1 = 5232,
+	# 								nbImDiffClasse0_train = 4000,
+	# 								nbUtilisations0_train = 1,
+	# 								nbImDiffClasse0_val = 750,
+	# 								rapport10_val = 5232./4768.)
 	dataset.load_fromBIN_lab01()
 	train_model(dataset, simple_cnn, optimizer, logFileName, betaL2=0.01, interv_reload=1000,
 				nbIterMax=10000, min_delta=0.02, patience=5000, nbElemMoyGlissante=25, verbose=2, interv_accuracy=200)
@@ -80,10 +89,14 @@ if action_save != "n":
 # Vérification des performances du modèle (non par défaut)
 action_verif = input("Vérifier les performances du modèle ? (O/n) : ")
 if action_verif == "O":
-	datasetVerif = DataSetVerif("A_train_part2", dimsImages=[img_height, img_width, img_channels], batchSize=128)
-	datasetVerif.load_fromBIN_dataLab(filename_data = "",
-									filename_label = "",
-									nbImages = 59647)
+	# datasetVerif = DataSetVerif("A_train_part2", dimsImages=[img_height, img_width, img_channels], batchSize=128)
+	# datasetVerif.load_fromBIN_dataLab(filename_data = "",
+	# 								  filename_label = "",
+	# 								  nbImages = 59647)
+	datasetVerif = DataSetVerif("data_test100k", dimsImages=[img_height, img_width, img_channels], batchSize=128)
+	datasetVerif.load_fromBIN_dataLab(filename_data = __dir__ + "DataBases/data_100k.bin",
+									  filename_label = __dir__ + "DataBases/gender_100k.bin",
+									  nbImages = 100000)
 	datasetVerif.get_mean_accuracy(simple_cnn)
 	datasetVerif.vider()
 
